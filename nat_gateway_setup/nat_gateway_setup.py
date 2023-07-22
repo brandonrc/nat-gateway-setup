@@ -3,7 +3,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator, ValidationError
 import ipaddress
-from .utils import enable_ip_forwarding, get_ip_range, get_linux_distribution, get_required_dependencies, check_dependencies, install_missing_dependencies
+from .utils import get_dns_server, enable_ip_forwarding, get_ip_range, get_linux_distribution, get_required_dependencies, check_dependencies, install_missing_dependencies
 from .firewall import configure_firewall
 from .dnsmasq import configure_dnsmasq, check_dnsmasq_configs, restart_dnsmasq
 from .network_interface import configure_interface
@@ -52,7 +52,8 @@ def main():
     # Setup dnsmasq
     check_dnsmasq_configs(lan_interface)
     ip_range = get_ip_range(dhcp_start_ip,dhcp_ip_count)
-    configure_dnsmasq(lan_interface,ip_range,ip)
+    dns_server_ip = get_dns_server()
+    configure_dnsmasq(lan_interface,ip_range,dns_server_ip)
     restart_dnsmasq()
 
     # Setup firewall

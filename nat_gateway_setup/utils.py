@@ -2,6 +2,22 @@ import os
 import subprocess
 import distro
 import ipaddress
+import re
+
+def get_dns_server(interface):
+    """
+    Get the DNS server for a given interface.
+
+    :param interface: The network interface name
+    :return: The DNS server IP address
+    """
+    with open('/etc/resolv.conf', 'r') as f:
+        contents = f.read()
+    match = re.search(r'nameserver (\b(?:\d{1,3}\.){3}\d{1,3}\b)', contents)
+    if match:
+        return match.group(1)
+    else:
+        return None
 
 def enable_ip_forwarding():
     """
