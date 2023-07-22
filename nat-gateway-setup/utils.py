@@ -2,7 +2,6 @@ import os
 import subprocess
 import platform
 
-
 def get_linux_distribution():
     """
     Detect the Linux distribution.
@@ -14,46 +13,38 @@ def get_linux_distribution():
     except:
         return "unknown"
 
-
 class CustomException(Exception):
     pass
 
-class DependencyManager:
+DEPENDENCIES = {
+    'ubuntu': {'firewall': 'ufw', 'dnsmasq': 'dnsmasq', 'network_manager': 'network-manager', 'systemd': 'systemd'},
+    'redhat': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'}
+}
 
-    linux_distribution = get_linux_distribution()
+def get_required_dependencies(linux_distribution):
+    return DEPENDENCIES.get(linux_distribution, {})
 
-    DEPENDENCIES = {
-        'ubuntu': {'firewall': 'ufw', 'dnsmasq': 'dnsmasq', 'network_manager': 'network-manager', 'systemd': 'systemd'},
-        'redhat': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'}
-    }
+def check_dependencies(dependencies):
+    return [dep for dep in dependencies if not is_installed(dep)]
 
-    REQUIRED_DEPENDENCIES = DEPENDENCIES.get(linux_distribution, {})
+def install_missing_dependencies(missing_dependencies):
+    for dep in missing_dependencies:
+        install_dependency(dep)
 
-    if not REQUIRED_DEPENDENCIES:
-        print(f"Unsupported Linux distribution: {linux_distribution}")
-        return
+def is_installed(dependency):
+    try:
+        subprocess.check_call(['which', dependency])
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
-    def check_dependencies(self):
-        self.missing_dependencies = [dep for dep in self.REQUIRED_DEPENDENCIES if not self.is_installed(dep)]
-
-    def install_missing_dependencies(self):
-        for dep in self.missing_dependencies:
-            self.install_dependency(dep)
-
-    def is_installed(self, dependency):
-        try:
-            subprocess.check_call(['which', dependency])
-            return True
-        except subprocess.CalledProcessError:
-            return False
-
-    def install_dependency(self, dependency):
-        try:
-            if os.path.isfile('/usr/bin/yum'):
-                subprocess.check_call(['yum', 'install', '-y', dependency])
-            elif os.path.isfile('/usr/bin/apt-get'):
-                subprocess.check_call(['apt-get', 'install', '-y', dependency])
-            else:
-                raise CustomException("Unsupported package manager. Cannot install dependencies.")
-        except subprocess.CalledProcessError as e:
-            raise CustomException(f"Dependency installation failed with error: {str(e)}") from None
+def install_dependency(dependency):
+    try:
+        if os.path.isfile('/usr/bin/yum'):
+            subprocess.check_call(['yum', 'install', '-y', dependency])
+        elif os.path.isfile('/usr/bin/apt-get'):
+            subprocess.check_call(['apt-get', 'install', '-y', dependency])
+        else:
+            raise CustomException("Unsupported package manager. Cannot install dependencies.")
+    except subprocess.CalledProcessError as e:
+        raise CustomException(f"Dependency installation failed with error: {str(e)}") from None
