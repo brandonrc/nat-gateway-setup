@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import uuid
 from .utils import CustomException
 
 def backup_existing_configuration(interface_name, connection_folder='/etc/NetworkManager/system-connections'):

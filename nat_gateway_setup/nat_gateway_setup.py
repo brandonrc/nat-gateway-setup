@@ -3,7 +3,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator, ValidationError
 import ipaddress
-from .utils import get_linux_distribution, CustomException
+from .utils import get_linux_distribution, get_required_dependencies, check_dependencies, install_missing_dependencies
 from .firewall import configure_firewall
 from .dnsmasq import configure_dnsmasq, check_dnsmasq_configs, restart_dnsmasq
 from .network_interface import configure_interface
