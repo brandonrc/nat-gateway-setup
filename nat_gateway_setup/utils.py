@@ -4,6 +4,30 @@ import distro
 import ipaddress
 import re
 
+def check_firewall_condition():
+    """
+    Check and set the correct firewall conditions for redhat systems.
+
+    :raise: CustomException if the configuration fails
+    """
+    try:
+        # First check if we are on a redhat system
+        if get_linux_distribution() in ['centos', 'redhat']:
+            # Disable iptables
+            subprocess.check_call(['systemctl', 'stop', 'iptables'])
+            subprocess.check_call(['systemctl', 'disable', 'iptables'])
+
+            # Unmask firewalld
+            subprocess.check_call(['systemctl', 'unmask', 'firewalld'])
+
+            # Enable and start firewalld
+            subprocess.check_call(['systemctl', 'enable', 'firewalld'])
+            subprocess.check_call(['systemctl', 'start', 'firewalld'])
+        else:
+            print("check_firewall_condition is only applicable to redhat-based distributions.")
+    except subprocess.CalledProcessError as e:
+        raise CustomException(f"Firewall condition check and setup failed with error: {str(e)}") from None
+
 def get_dns_server():
     """
     Get the DNS server 

@@ -71,6 +71,17 @@ def check_dnsmasq_configs(dns_interface):
                 else:
                     f.write(line)
 
+def enable_dnsmasq():
+    """
+    Restart the dnsmasq service.
+
+    :raise: CustomException if the service fails to restart
+    """
+    try:
+        subprocess.check_call(['systemctl', 'enable', 'dnsmasq'])
+    except subprocess.CalledProcessError as e:
+        raise CustomException(f"Failed to restart dnsmasq service: {str(e)}") from None
+
 def restart_dnsmasq():
     """
     Restart the dnsmasq service.
@@ -134,6 +145,7 @@ def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time_str='24h')
             f.write("bind-interfaces\n")
 
         # Restart the dnsmasq service to apply changes
+        enable_dnsmasq()
         restart_dnsmasq()
 
     except Exception as e:
