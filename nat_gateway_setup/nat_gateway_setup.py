@@ -51,7 +51,7 @@ def main():
     # Setup dnsmasq
     check_dnsmasq_configs(lan_interface)
     ip_range = get_ip_range(dhcp_start_ip,dhcp_ip_count)
-    configure_dnsmasq(lan_interface, ip_range, netmask)
+    configure_dnsmasq(lan_interface,ip_range,ip)
     restart_dnsmasq()
 
     # Setup firewall
