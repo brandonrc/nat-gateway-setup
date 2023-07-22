@@ -1,6 +1,6 @@
 import os
 import subprocess
-import platform
+import distro
 
 def get_linux_distribution():
     """
@@ -9,9 +9,10 @@ def get_linux_distribution():
     :return: String identifier for the detected Linux distribution
     """
     try:
-        return platform.linux_distribution()[0].lower()
+        return distro.id()
     except:
         return "unknown"
+
 
 class CustomException(Exception):
     pass
