@@ -77,16 +77,42 @@ def restart_dnsmasq():
     except subprocess.CalledProcessError as e:
         raise CustomException(f"Failed to restart dnsmasq service: {str(e)}") from None
 
+def time_check(time_str):
+    """
+    Sanitize the time string.
 
-def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time):
+    :param time_str: The time string in the format '12m' or '12h'.
+    :return: The sanitized time string.
+    :raises: ValueError if the time_str is not in a valid format or contains leading zeros.
+    """
+    if not time_str[:-1].isdigit():
+        raise ValueError("Invalid time format. Use '12m' for minutes or '12h' for hours.")
+
+    time_unit = time_str[-1]
+    time_value = int(time_str[:-1])
+
+    if time_unit not in ('m', 'h'):
+        raise ValueError("Invalid time format. Use '12m' for minutes or '12h' for hours.")
+
+    if time_value == 0:
+        raise ValueError("Time value cannot be zero.")
+
+    if time_value < 0:
+        raise ValueError("Time value cannot be negative.")
+
+    sanitized_time_str = f"{time_value}{time_unit}"
+    return sanitized_time_str
+
+
+def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time_str='24h'):
     """
     Configure dnsmasq with the given parameters.
 
     :param dns_interface: The network interface that dnsmasq should bind to.
     :param ip_range: The IP range for DHCP.
     :param dns_server: The upstream DNS server.
-    :param lease_time: The DHCP lease time.
-    :raise: CustomException if the configuration fails
+    :param lease_time_str: The DHCP lease time as a string in the format '12m' or '12h'.
+    :raise: CustomException if the configuration fails.
     """
     try:
         # First, check for conflicts
@@ -95,7 +121,7 @@ def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time):
         # Write our new configuration
         with open(f'/etc/dnsmasq.d/nat_{dns_interface}.conf', 'w') as f:
             f.write(f"interface={dns_interface}\n")
-            f.write(f"dhcp-range={ip_range},{lease_time}\n")
+            f.write(f"dhcp-range={ip_range},{time_check(lease_time_str)}\n")
             f.write(f"dhcp-option=6,{dns_server}\n")
             f.write("no-resolv\n")
             f.write("no-poll\n")
