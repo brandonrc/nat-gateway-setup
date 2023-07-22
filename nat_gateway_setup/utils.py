@@ -3,6 +3,26 @@ import subprocess
 import distro
 import ipaddress
 
+def enable_ip_forwarding():
+    """
+    Enable IP forwarding.
+    
+    :raise: CustomException if the configuration fails
+    """
+    try:
+        if get_linux_distribution() in ['centos', 'redhat']:
+            with open('/etc/sysctl.d/99-ipforward.conf', 'w') as f:
+                f.write('net.ipv4.ip_forward = 1\n')
+            subprocess.check_call(['sysctl', '-p', '/etc/sysctl.d/99-ipforward.conf'])
+        elif get_linux_distribution() in ['ubuntu', 'debian']:
+            with open('/etc/sysctl.conf', 'a') as f:
+                f.write('\nnet.ipv4.ip_forward=1\n')
+            subprocess.check_call(['sysctl', '-p'])
+        else:
+            raise CustomException("Unsupported Linux distribution for IP forwarding configuration.")
+    except subprocess.CalledProcessError as e:
+        raise CustomException(f"IP forwarding configuration failed with error: {str(e)}") from None
+
 def get_ip_range(start_ip: str, count: int):
     start_ip_int = int(ipaddress.IPv4Address(start_ip))
     end_ip_int = start_ip_int + count - 1

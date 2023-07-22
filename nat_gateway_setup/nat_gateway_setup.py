@@ -3,7 +3,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator, ValidationError
 import ipaddress
-from .utils import get_ip_range, get_linux_distribution, get_required_dependencies, check_dependencies, install_missing_dependencies
+from .utils import enable_ip_forwarding, get_ip_range, get_linux_distribution, get_required_dependencies, check_dependencies, install_missing_dependencies
 from .firewall import configure_firewall
 from .dnsmasq import configure_dnsmasq, check_dnsmasq_configs, restart_dnsmasq
 from .network_interface import configure_interface
@@ -36,6 +36,7 @@ def main():
     required_dependencies = get_required_dependencies(linux_distribution)
     missing_dependencies = check_dependencies(required_dependencies)
     install_missing_dependencies(missing_dependencies)
+    enable_ip_forwarding()
 
     # If arguments are not provided via command line, ask for user input
     ip = args.ip if args.ip else prompt("Please enter the IP address: ", validator=IPValidator())
