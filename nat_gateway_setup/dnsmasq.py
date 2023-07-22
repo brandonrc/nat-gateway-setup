@@ -6,6 +6,7 @@ from .utils import CustomException
 import tarfile
 import time
 import re
+from datetime import datetime
 
 def backup_dnsmasq_configuration(backup_folder="/var/cache/nat-linux-gateway"):
     """
@@ -61,10 +62,14 @@ def check_dnsmasq_configs(dns_interface):
     # Check if there are conflicting configurations in /etc/dnsmasq.d/
     for filename in glob.glob('/etc/dnsmasq.d/*.conf'):
         with open(filename, 'r') as f:
-            contents = f.read()
-            if re.search(rf'interface={dns_interface}', contents):
-                raise CustomException(f"Conflict found in {filename} for interface {dns_interface}")
+            contents = f.readlines()
 
+        with open(filename, 'w') as f:
+            for line in contents:
+                if re.search(rf'interface={dns_interface}', line):
+                    f.write(f"# Commented by nat_gateway_setup - {line}")
+                else:
+                    f.write(line)
 
 def restart_dnsmasq():
     """
@@ -120,6 +125,7 @@ def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time_str='24h')
 
         # Write our new configuration
         with open(f'/etc/dnsmasq.d/nat_{dns_interface}.conf', 'w') as f:
+            f.write(f"# Created on: {datetime.now().strftime('%Y%m%d%H%M%S')}")
             f.write(f"interface={dns_interface}\n")
             f.write(f"dhcp-range={ip_range},{time_check(lease_time_str)}\n")
             f.write(f"dhcp-option=6,{dns_server}\n")
