@@ -4,11 +4,10 @@ import distro
 import ipaddress
 import re
 
-def get_dns_server(interface):
+def get_dns_server():
     """
-    Get the DNS server for a given interface.
-
-    :param interface: The network interface name
+    Get the DNS server 
+    
     :return: The DNS server IP address
     """
     with open('/etc/resolv.conf', 'r') as f:
