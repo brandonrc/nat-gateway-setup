@@ -16,6 +16,7 @@ prompt-toolkit = "^3.0.18"
 argparse = "^1.4.0"
 pyroute2 = "^0.5.14"
 ipaddress = "^1.0.23"
+distro = "^1.8.0"
 
 [tool.poetry.dev-dependencies]
 

@@ -14,8 +14,14 @@ def check_firewall_condition():
         # First check if we are on a redhat system
         if get_linux_distribution() in ['centos', 'redhat']:
             # Disable iptables
-            subprocess.check_call(['systemctl', 'stop', 'iptables'])
-            subprocess.check_call(['systemctl', 'disable', 'iptables'])
+            try:
+                subprocess.check_call(['systemctl', 'stop', 'iptables'])
+            except subprocess.CalledProcessError:
+                pass # This is ok to get an error here... we just want to make sure
+            try:
+                subprocess.check_call(['systemctl', 'disable', 'iptables'])
+            except subprocess.CalledProcessError:
+                pass # same here. 
 
             # Unmask firewalld
             subprocess.check_call(['systemctl', 'unmask', 'firewalld'])
