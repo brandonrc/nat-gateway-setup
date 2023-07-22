@@ -61,14 +61,14 @@ def enable_network_manager():
         raise CustomException(f"Reloading NetworkManager failed with error: {str(e)}") from None
 
 
-def reload_network_manager():
+def restart_network_manager():
     """
     Reload NetworkManager to apply the new configuration.
 
     :raise: CustomException if the reload fails
     """
     try:
-        subprocess.check_call(['systemctl', 'reload', 'NetworkManager'])
+        subprocess.check_call(['systemctl', 'restart', 'NetworkManager'])
     except subprocess.CalledProcessError as e:
         raise CustomException(f"Reloading NetworkManager failed with error: {str(e)}") from None
 
@@ -83,7 +83,7 @@ def configure_interface(interface_name, ip, netmask, connection_folder='/etc/Net
         backup_existing_configuration(interface_name, connection_folder)
         create_nm_connection(interface_name, ip, netmask, connection_folder)
         enable_network_manager()
-        reload_network_manager()
+        restart_network_manager()
 
     except subprocess.CalledProcessError as e:
         raise CustomException(f"Network interface configuration failed with error: {str(e)}") from None
