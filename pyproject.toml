@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "gateway_setup"
+name = "nat_gateway_setup"
 version = "0.1.1"  # Version bumped
 description = "A utility to configure a NAT gateway for a private network in Linux."
 authors = ["Brandon Geraci <brandon.geraci@gmail.com>"]
