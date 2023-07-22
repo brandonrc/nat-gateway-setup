@@ -32,7 +32,7 @@ def create_nm_connection(interface_name, ip, netmask, connection_folder='/etc/Ne
         with open(connection_file, 'w') as f:
             f.write(f"""[connection]
 id={interface_name}
-uuid={str(uuid.uuid4())}  # generate a random UUID
+uuid={str(uuid.uuid4())}
 type=ethernet
 interface-name={interface_name}
 
