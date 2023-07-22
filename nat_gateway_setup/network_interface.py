@@ -27,7 +27,8 @@ def create_nm_connection(interface_name, ip, netmask, connection_folder='/etc/Ne
     :raise: CustomException if the file creation fails
     """
     try:
-        connection_file = os.path.join(connection_folder, interface_name)
+        interface_file_name = interface_name + ".nmconnection"
+        connection_file = os.path.join(connection_folder, interface_file_name)
         with open(connection_file, 'w') as f:
             f.write(f"""[connection]
 id={interface_name}
@@ -42,9 +43,11 @@ addresses={ip}/{netmask}
 [ipv6]
 method=disabled
 """)
+        # After writing the file, change the file permissions to 0600
+        os.chmod(connection_file, 0o600)
+
     except Exception as e:
         raise CustomException(f"Creation of NetworkManager connection file failed with error: {str(e)}") from None
-
 
 def reload_network_manager():
     """
