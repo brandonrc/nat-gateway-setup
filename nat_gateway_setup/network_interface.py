@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import uuid
+from time import sleep
 from .utils import CustomException
 
 def backup_existing_configuration(interface_name, connection_folder='/etc/NetworkManager/system-connections'):
@@ -84,6 +85,8 @@ def configure_interface(interface_name, ip, netmask, connection_folder='/etc/Net
         create_nm_connection(interface_name, ip, netmask, connection_folder)
         enable_network_manager()
         restart_network_manager()
+        print("Restarting network services")
+        sleep(2)
 
     except subprocess.CalledProcessError as e:
         raise CustomException(f"Network interface configuration failed with error: {str(e)}") from None
