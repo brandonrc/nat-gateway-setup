@@ -125,7 +125,7 @@ def configure_dnsmasq(dns_interface, ip_range, dns_server, lease_time_str='24h')
 
         # Write our new configuration
         with open(f'/etc/dnsmasq.d/nat_{dns_interface}.conf', 'w') as f:
-            f.write(f"# Created on: {datetime.now().strftime('%Y%m%d%H%M%S')}")
+            f.write(f"# Created on: {datetime.now().strftime('%Y%m%d%H%M%S')}\n")
             f.write(f"interface={dns_interface}\n")
             f.write(f"dhcp-range={ip_range},{time_check(lease_time_str)}\n")
             f.write(f"dhcp-option=6,{dns_server}\n")
