@@ -5,7 +5,7 @@ from .utils import CustomException, get_linux_distribution
 import glob
 import shutil
 
-def configure_firewall_wlan_to_eth(wlan_interface, eth_interface):
+def configure_firewall(wlan_interface, lan_interface):
     """
     Configure the firewall to forward traffic from the wlan interface to the eth interface.
 
@@ -25,7 +25,7 @@ def configure_firewall_wlan_to_eth(wlan_interface, eth_interface):
             
             subprocess.check_call(['firewall-cmd', '--zone=public', '--add-masquerade', '--permanent'])
             subprocess.check_call(['firewall-cmd', '--zone=public', '--add-interface', wlan_interface, '--permanent'])
-            subprocess.check_call(['firewall-cmd', '--zone=internal', '--add-interface', eth_interface, '--permanent'])
+            subprocess.check_call(['firewall-cmd', '--zone=internal', '--add-interface', lan_interface, '--permanent'])
             subprocess.check_call(['firewall-cmd', '--reload'])
         elif get_linux_distribution() in ['ubuntu', 'debian']:
             # Backup sysctl.conf and before.rules
@@ -36,7 +36,7 @@ def configure_firewall_wlan_to_eth(wlan_interface, eth_interface):
             with open('/etc/ufw/sysctl.conf', 'a') as f:
                 f.write("\n# Enable IP forwarding\nnet/ipv4/ip_forward=1\nnet/ipv6/conf/default/forwarding=1\nnet/ipv6/conf/all/forwarding=1\n")
             with open('/etc/ufw/before.rules', 'a') as f:
-                f.write("\n# Enable forwarding from " + eth_interface + " to " + wlan_interface + "\n*nat\n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -s 192.168.1.0/24 -o " + wlan_interface + " -j MASQUERADE\nCOMMIT\n")
+                f.write("\n# Enable forwarding from " + lan_interface + " to " + wlan_interface + "\n*nat\n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -s 192.168.1.0/24 -o " + wlan_interface + " -j MASQUERADE\nCOMMIT\n")
             subprocess.check_call(['ufw', 'enable'])
         else:
             raise CustomException("Unsupported Linux distribution for firewall configuration.")

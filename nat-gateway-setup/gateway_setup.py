@@ -3,6 +3,11 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator, ValidationError
 import ipaddress
+from utils import get_linux_distribution, CustomException
+from dependency_manager import get_required_dependencies, check_dependencies, install_missing_dependencies
+from firewall import configure_firewall
+from dnsmasq import configure_dnsmasq, check_dnsmasq_configs, restart_dnsmasq
+from network_interface import configure_interface
 
 class IPValidator(Validator):
     def validate(self, document):
@@ -21,9 +26,10 @@ def main():
     args = parser.parse_args()
 
     # Check and install dependencies
-    dependencies = DependencyManager()
-    dependencies.check_dependencies()
-    dependencies.install_missing_dependencies()
+    linux_distribution = get_linux_distribution()
+    required_dependencies = get_required_dependencies(linux_distribution)
+    missing_dependencies = check_dependencies(required_dependencies)
+    install_missing_dependencies(missing_dependencies)
 
     # If arguments are not provided via command line, ask for user input
     ip = args.ip if args.ip else prompt("Please enter the IP address: ", validator=IPValidator())
@@ -32,17 +38,15 @@ def main():
     lan_interface = args.lan if args.lan else prompt("Please enter the local network interface (LAN): ")
 
     # Setup network interface
-    net_manager = NetworkInterfaceManager(lan_interface)
-    net_manager.configure_interface(ip, netmask)
+    configure_interface(lan_interface, ip, netmask)
 
     # Setup dnsmasq
-    dnsmasq_manager = DNSMasqManager(lan_interface)
-    dnsmasq_manager.install_dnsmasq()
-    dnsmasq_manager.configure_dnsmasq()
+    check_dnsmasq_configs(lan_interface)
+    configure_dnsmasq(lan_interface, ip, netmask)
+    restart_dnsmasq()
 
     # Setup firewall
-    firewall_manager = FirewallManager(wlan_interface, lan_interface)
-    firewall_manager.configure_firewall()
+    configure_firewall(wlan_interface, lan_interface)
 
 if __name__ == "__main__":
     main()
