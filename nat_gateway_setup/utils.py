@@ -1,6 +1,13 @@
 import os
 import subprocess
 import distro
+import ipaddress
+
+def get_ip_range(start_ip: str, count: int):
+    start_ip_int = int(ipaddress.IPv4Address(start_ip))
+    end_ip_int = start_ip_int + count - 1
+    end_ip = ipaddress.IPv4Address(end_ip_int)
+    return f"{start_ip},{end_ip}"
 
 def get_linux_distribution():
     """
