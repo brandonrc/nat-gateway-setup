@@ -16,7 +16,7 @@ build/
 env/
 
 # Poetry
-/poetry.lock
+#/poetry.lock
 
 # Other
 .DS_Store
