@@ -1,34 +1,39 @@
-name: Build and publish python package
+name: Publish
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags:
+      - '*'
 
 jobs:
-  publish-service-client-package:
+  build-and-publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Check out the repo
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.11.0'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
 
-      - name: Install Poetry and Poetry-core
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade poetry poetry-core
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
 
-      - name: Build the package
-        run: poetry build
+    - name: Configure Poetry
+      run: |
+        poetry config virtualenvs.create false
+        poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
 
-      - name: Publish PyPi package
-        uses: code-specialist/pypi-poetry-publish@v1.2
-        with:
-          BRANCH: main
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+    - name: Install project dependencies
+      run: poetry install
+
+    - name: Build package
+      run: poetry build
+
+    - name: Publish package
+      run: poetry publish
+
+    - name: Clean up
+      run: poetry cache:clear pypi --all
