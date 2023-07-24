@@ -23,10 +23,12 @@ jobs:
           pip install --upgrade pip
           pip install --upgrade poetry poetry-core
 
+      - name: Build the package
+        run: poetry build
+
       - name: Publish PyPi package
         uses: code-specialist/pypi-poetry-publish@v1.2
         with:
           BRANCH: main
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-
