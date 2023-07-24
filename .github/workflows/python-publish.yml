@@ -36,4 +36,4 @@ jobs:
       run: poetry publish
 
     - name: Clean up
-      run: poetry cache:clear pypi --all
+      run: poetry cache clear pypi --all
