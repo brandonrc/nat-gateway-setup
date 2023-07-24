@@ -5,6 +5,9 @@ from .utils import CustomException, get_linux_distribution
 import glob
 import shutil
 
+# TODO: Check state of firewall.... not really sure how to do this.
+#       Seems like dhcpd and dns is not working with a port on rhel8
+
 def configure_firewall(wlan_interface, lan_interface):
     """
     Configure the firewall to forward traffic from the wlan interface to the eth interface.

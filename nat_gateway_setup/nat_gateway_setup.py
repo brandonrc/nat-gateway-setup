@@ -8,6 +8,10 @@ from .firewall import configure_firewall
 from .dnsmasq import configure_dnsmasq, check_dnsmasq_configs, restart_dnsmasq
 from .network_interface import configure_interface
 
+# TODO: Check previous configurations
+#       One of the issues is there a wireless connection profile that does not have a mac address assigned. This is
+#       dangerous for other systems.. so what we want to do is make, 
+
 class IPValidator(Validator):
     def validate(self, document):
         try:

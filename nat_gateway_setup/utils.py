@@ -4,6 +4,16 @@ import distro
 import ipaddress
 import re
 
+def supported_os():
+    return get_linux_distribution() in ['centos', 'redhat', 'rhel', 'ubuntu'] # Tested OS's
+
+def is_debian_based():
+    return get_linux_distribution() in ['centos', 'redhat', 'rhel'] # CHECK TO SEE IF IT IS A REDHAT CHILD OS
+
+def is_redhat_based():
+    return get_linux_distribution() in ['ubuntu', 'debian'] # CHECKS TO SEE IF IT IS A DEBIAN CHILD OS
+
+
 def check_firewall_condition():
     """
     Check and set the correct firewall conditions for redhat systems.
@@ -12,7 +22,7 @@ def check_firewall_condition():
     """
     try:
         # First check if we are on a redhat system
-        if get_linux_distribution() in ['centos', 'redhat']:
+        if supported_os():
             # Disable iptables
             try:
                 subprocess.check_call(['systemctl', 'stop', 'iptables'])
@@ -55,11 +65,11 @@ def enable_ip_forwarding():
     :raise: CustomException if the configuration fails
     """
     try:
-        if get_linux_distribution() in ['centos', 'redhat']:
+        if is_redhat_based(): # CHECK TO SEE IF IT IS A REDHAT CHILD OS
             with open('/etc/sysctl.d/99-ipforward.conf', 'w') as f:
                 f.write('net.ipv4.ip_forward = 1\n')
             subprocess.check_call(['sysctl', '-p', '/etc/sysctl.d/99-ipforward.conf'])
-        elif get_linux_distribution() in ['ubuntu', 'debian']:
+        elif is_debian_based(): # CHECKS TO SEE IF IT IS A DEBIAN CHILD OS
             with open('/etc/sysctl.conf', 'a') as f:
                 f.write('\nnet.ipv4.ip_forward=1\n')
             subprocess.check_call(['sysctl', '-p'])
@@ -91,14 +101,18 @@ class CustomException(Exception):
 
 DEPENDENCIES = {
     'ubuntu': {'firewall': 'ufw', 'dnsmasq': 'dnsmasq', 'network_manager': 'network-manager', 'systemd': 'systemd'},
-    'redhat': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'}
+    'redhat': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'},
+    'rhel': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'},
+    'centos': {'firewall': 'firewalld', 'dnsmasq': 'dnsmasq', 'network_manager': 'NetworkManager', 'systemd': 'systemd'}
 }
+
 
 def get_required_dependencies(linux_distribution):
     return DEPENDENCIES.get(linux_distribution, {})
 
 def check_dependencies(dependencies):
-    return [dep for dep in dependencies if not is_installed(dep)]
+    return [dep for dep in dependencies.values() if not is_installed(dep)]
+
 
 def install_missing_dependencies(missing_dependencies):
     for dep in missing_dependencies:
